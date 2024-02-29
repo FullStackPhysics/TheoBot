@@ -1,39 +1,81 @@
 import { kv } from '@vercel/kv'
-import { OpenAIStream, StreamingTextResponse } from 'ai'
+import {
+  AIStream,
+  AIStreamParser,
+  OpenAIStream,
+  StreamingTextResponse
+} from 'ai'
 import OpenAI from 'openai'
 
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
+import { AddMessageRequest, ChatBotMessage } from '@/types/message'
+import { CustomGPTError, CustomGPTResponse } from '@/types/custom-gpt'
+import axios from 'axios'
 
 export const runtime = 'edge'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+function parseCustomGptResponse(): AIStreamParser {
+  let previous = ''
 
+  return data => {
+    const json = JSON.parse(data) as { status: string; message: string }
+
+    const text = json.message
+
+    previous = text
+
+    return text
+  }
+}
 export async function POST(req: Request) {
   const json = await req.json()
-  const { messages, previewToken } = json
-  const userId = (await auth())?.user.id
+  console.log(json)
+  const {
+    messages,
+    custom_persona,
+    chatbot_model,
+    response_source,
+    sessionId
+  } = json
+  //const userId = (await auth())?.user.id
 
-  if (!userId) {
+  /* if (!userId) {
     return new Response('Unauthorized', {
       status: 401
     })
+  } */
+  if (sessionId === undefined) {
+    return Response.json(
+      {
+        data: { message: 'Session ID not included.', code: 400 },
+        status: 'error'
+      } as CustomGPTResponse<CustomGPTError>,
+      {
+        status: 400
+      }
+    )
   }
 
-  if (previewToken) {
-    openai.apiKey = previewToken
-  }
+  const response = await fetch(
+    `https://app.customgpt.ai/api/v1/projects/${process.env.CustomGPTProjectKey}/conversations/${sessionId}/messages?stream=true&lang=en`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.CustomGPTApiKey}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        chatbot_model: chatbot_model,
+        custom_persona: custom_persona,
+        response_source: response_source,
+        prompt: messages[0].content
+      })
+    }
+  )
 
-  const res = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
-    messages,
-    temperature: 0.7,
-    stream: true
-  })
-
-  const stream = OpenAIStream(res, {
+  /* const stream = OpenAIStream(res, {
     async onCompletion(completion) {
       const title = json.messages[0].content.substring(0, 100)
       const id = json.id ?? nanoid()
@@ -58,6 +100,21 @@ export async function POST(req: Request) {
         score: createdAt,
         member: `chat:${id}`
       })
+    }
+  }) */
+
+  const stream = AIStream(response, parseCustomGptResponse(), {
+    onStart: async () => {
+      console.log('Stream started')
+    },
+    onCompletion: async completion => {
+      console.log('Completion completed', completion)
+    },
+    onFinal: async completion => {
+      console.log('Stream completed', completion)
+    },
+    onToken: async token => {
+      console.log('Token received', token)
     }
   })
 

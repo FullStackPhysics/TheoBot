@@ -9,9 +9,7 @@ import OpenAI from 'openai'
 
 import { auth } from '@/auth'
 import { nanoid } from '@/lib/utils'
-import { AddMessageRequest, ChatBotMessage } from '@/types/message'
 import { CustomGPTError, CustomGPTResponse } from '@/types/custom-gpt'
-import axios from 'axios'
 
 export const runtime = 'edge'
 
@@ -30,7 +28,7 @@ function parseCustomGptResponse(): AIStreamParser {
 }
 export async function POST(req: Request) {
   const json = await req.json()
-  console.log(json)
+
   const {
     messages,
     custom_persona,

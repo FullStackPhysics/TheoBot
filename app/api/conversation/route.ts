@@ -1,6 +1,5 @@
 import { CreateConversationResponse } from '@/types/conversation'
 import { CustomGPTError, CustomGPTResponse } from '@/types/custom-gpt'
-import axios from 'axios'
 import { NextRequest } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -20,12 +19,11 @@ export async function POST(req: NextRequest) {
 
   const name = body.name
 
-  const response = await axios.post<
-    CustomGPTResponse<CreateConversationResponse>
-  >(
+  const response = await fetch(
     `https://app.customgpt.ai/api/v1/projects/${process.env.CustomGPTProjectKey}/conversations`,
-    { name: name },
     {
+      method: 'POST',
+      body: JSON.stringify({ name: name }),
       headers: {
         Authorization: `Bearer ${process.env.CustomGPTApiKey}`,
         Accept: 'application/json',
@@ -33,6 +31,7 @@ export async function POST(req: NextRequest) {
       }
     }
   )
-
-  return Response.json(response.data)
+  const json =
+    (await response.json()) as CustomGPTResponse<CreateConversationResponse>
+  return Response.json(json)
 }

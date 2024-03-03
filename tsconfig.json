@@ -29,7 +29,8 @@
     "next-auth.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "components/providers/lemon-squeezy-provider.tss"
   ],
   "exclude": ["node_modules"]
 }

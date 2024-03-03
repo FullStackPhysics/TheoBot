@@ -47,6 +47,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <Providers
           attribute="class"
           defaultTheme="system"
+          url={`${process.env.KV_REST_API_URL}`}
+          token={`${process.env.KV_REST_API_TOKEN}`}
           enableSystem
           disableTransitionOnChange
         >

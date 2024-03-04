@@ -1,0 +1,36 @@
+import { DashboardContent } from '@/components/dashboard/content'
+import { PageTitleAction } from '@/components/dashboard/page-title-action'
+
+export const dynamic = 'force-dynamic'
+
+export default async function Page() {
+  return (
+    <DashboardContent title="Dashboard" action={<PageTitleAction />}>
+      <p>
+        This page is protected by the <code>auth</code> middleware. You can only
+        see this page if you are signed in. The Webhook Setup section is only
+        for demonstration purposes.
+      </p>
+
+      <h2>Webhook Setup</h2>
+
+      <p>
+        This app relies on webhooks to listen for changes made on Lemon Squeezy.
+        Make sure that you have entered all the required environment variables
+        (.env).
+      </p>
+
+      <p className="mb-6">
+        Configure the webhook on{' '}
+        <a
+          href="https://app.lemonsqueezy.com/settings/webhooks"
+          target="_blank"
+        >
+          Lemon Squeezy
+        </a>
+        , or simply click the button below to do that automatically with the
+        Lemon Squeezy SDK.
+      </p>
+    </DashboardContent>
+  )
+}

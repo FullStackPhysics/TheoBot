@@ -1,5 +1,8 @@
+import { PrismaAdapter } from '@auth/prisma-adapter'
 import NextAuth, { type DefaultSession } from 'next-auth'
-import GitHub from 'next-auth/providers/github'
+import { prisma } from './app/config/prisma'
+import Github from 'next-auth/providers/github'
+import Google from 'next-auth/providers/google'
 
 declare module 'next-auth' {
   interface Session {
@@ -14,7 +17,8 @@ export const {
   handlers: { GET, POST },
   auth
 } = NextAuth({
-  providers: [GitHub],
+  adapter: PrismaAdapter(prisma),
+  providers: [Github, Google],
   callbacks: {
     jwt({ token, profile }) {
       if (profile) {

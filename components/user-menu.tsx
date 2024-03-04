@@ -62,6 +62,14 @@ export function UserMenu({ user }: UserMenuProps) {
               <IconExternalLink className="size-3 ml-auto" />
             </a>
           </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <a
+              href="/dashboard/billing"
+              className="inline-flex items-center justify-between w-full text-xs"
+            >
+              Billing Portal
+            </a>
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() =>
               signOut({

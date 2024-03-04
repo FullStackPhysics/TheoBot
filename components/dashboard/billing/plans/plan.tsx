@@ -83,7 +83,7 @@ export function InfoMessage() {
       <a
         href="https://docs.lemonsqueezy.com/guides/developer-guide/testing-going-live#testing-the-checkout"
         target="_blank"
-        className="text-gray-900 underline hover:text-primary"
+        className="text-gray-200 underline hover:text-primary"
       >
         these instructions
       </a>{' '}

@@ -110,7 +110,7 @@ const SignupButton = forwardRef<ButtonElement, ButtonProps>(
         }}
         {...otherProps}
       >
-        <span className="text-wg-red">{label}</span>
+        <span className="text-black block">{label}</span>
       </Button>
     )
   }

@@ -9,6 +9,7 @@ declare module 'next-auth' {
     user: {
       /** The user's id. */
       id: string
+      isSubscriber: boolean
     } & DefaultSession['user']
   }
 }
@@ -20,16 +21,26 @@ export const {
   adapter: PrismaAdapter(prisma),
   providers: [Github, Google],
   callbacks: {
-    jwt({ token, profile }) {
+    jwt({ token, profile, account }) {
       if (profile) {
         token.id = profile.id
         token.image = profile.avatar_url || profile.picture
       }
       return token
     },
-    session: ({ session, token }) => {
+    session: async ({ session, token, user }) => {
       if (session?.user && token?.id) {
         session.user.id = String(token.id)
+        const userSubscription = await prisma.subscription.findFirst({
+          where: { userId: session.user.id }
+        })
+        session.user.isSubscriber =
+          userSubscription &&
+          userSubscription.status === 'active' &&
+          !userSubscription.isPaused &&
+          userSubscription.endsAt > new Date(Date.now())
+            ? true
+            : false
       }
       return session
     },
